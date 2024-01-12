@@ -9,19 +9,25 @@ class HotelSystem {
         Rooms = new Room[roomsAmount];
         PopulateRooms();
 
-        AddMenu(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"},
-        new Action[] {DisplayAllRooms, Submenu, Submenu, Exit},
+        AddMenu(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź", "Debug"},
+        new Action[] {DisplayAllRooms, Submenu, Submenu, Exit, Debug},
         "System rezerwacji pokojów w hotelu", -1);
 
         AddMenu(new string[] {"Zarezerwuj pokój", "Anuluj rezerwację", "Wyświetl twoje rezerwacje", "Wstecz"},
         new Action[] {ReserveRoom, CancelReservation, DisplayYourReservations, GoBack},
         "Rezerwacja", 1);
 
-        AddMenu(new string[] {"Zaloguj się", "Załóż konto", "Wyloguj się", "Wstecz"},
-        new Action[] {Login, CreateUser, Logout, GoBack},
+        AddMenu(new string[] {"Zaloguj się", "Załóż konto", "Wyloguj się", "Płatności", "Wstecz"},
+        new Action[] {Login, CreateUser, Logout, Submenu, GoBack},
         "Konto", 2);
         
         menu?.Start();
+    }
+
+    private void Debug()
+    {
+        int i;
+        return;
     }
 
     private void AddMenu(string[] options, Action[] actions, string header, int index) {
@@ -55,7 +61,7 @@ class HotelSystem {
         Environment.Exit(0);
     }
     private void GoBack() {
-        menu?.Start();
+        Console.Clear();
     }
     private void ReserveRoom()
     {
@@ -130,7 +136,7 @@ class HotelSystem {
                 Console.Write('O');
             }
         }
-        Console.ReadKey();
+        Console.ReadKey(true);
         GoBack();
     }
     private void DisplayYourReservations() {

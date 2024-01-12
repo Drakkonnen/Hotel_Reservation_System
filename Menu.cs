@@ -52,8 +52,6 @@ class Menu {
     }
 
     private void PrintMenu() {
-        int windowWidth = Console.WindowWidth;
-        //PrintHeader();
         PrinterHelper.PrintMessage(Header, 0, false);
         Console.CursorTop++;
         for (int i = 0; i < optionsList.Count; i++)
@@ -90,6 +88,7 @@ class Menu {
                 }
                 else {
                     option.Action();
+                    return;
                 }
             }
         }
