@@ -1,17 +1,18 @@
 class Menu {
     bool isWorking = true;
+    public string MenuName {get; private set; }
     string Header {get; set; }
-    int CursorPos {get; set;}
+    int CursorPos {get; set; }
     private IUserProvider userProvider;
     Dictionary<int, Menu> submenus = new Dictionary<int, Menu>();
     List<Option> optionsList = new List<Option>();
     struct Option
     {
-        public string Name {get; private set;}
+        public string OptionName {get; private set;}
         public int Index {get; private set;} 
         public Action Action {get; private set;}
         public Option(string name, int index, Action action) {
-            Name = name;
+            OptionName = name;
             Index = index;
             Action = action;
         }
@@ -19,7 +20,7 @@ class Menu {
 
 
 
-    public Menu(string[] options, Action[] actions, string header, IUserProvider userProvider) {
+    public Menu(string[] options, Action[] actions, string header, IUserProvider userProvider, string menuName) {
         for (int i = 0; i < options.Length; i++) {
             Option option = new Option(options[i], i, actions[i]);
             optionsList.Add(option);
@@ -27,6 +28,7 @@ class Menu {
         this.userProvider = userProvider; 
         Header = header;
         CursorPos = 0;
+        MenuName = menuName;
     }
 
     public void Start() {
@@ -51,12 +53,15 @@ class Menu {
         submenus.Add(optionIndex, submenu);
     }
 
+    public Dictionary<int, Menu> GetSubmenus() {
+        return submenus;
+    }
     private void PrintMenu() {
         PrinterHelper.PrintMessage(Header, 0, false);
         Console.CursorTop++;
         for (int i = 0; i < optionsList.Count; i++)
         {
-            string text = optionsList.ElementAt(i).Name;
+            string text = optionsList.ElementAt(i).OptionName;
             if (CursorPos == optionsList.ElementAt(i).Index) {
                 PrinterHelper.SelectColor();
             }

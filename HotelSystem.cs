@@ -9,34 +9,44 @@ class HotelSystem {
         Rooms = new Room[roomsAmount];
         PopulateRooms();
 
-        AddMenu(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź", "Debug"},
-        new Action[] {DisplayAllRooms, Submenu, Submenu, Exit, Debug},
-        "System rezerwacji pokojów w hotelu", -1);
+        AddMenu(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"},
+        new Action[] {DisplayAllRooms, Submenu, Submenu, Exit},
+        "System rezerwacji pokojów w hotelu", -1, "MainMenu");
 
         AddMenu(new string[] {"Zarezerwuj pokój", "Anuluj rezerwację", "Wyświetl twoje rezerwacje", "Wstecz"},
         new Action[] {ReserveRoom, CancelReservation, DisplayYourReservations, GoBack},
-        "Rezerwacja", 1);
+        "Rezerwacja", 1, "RezerwacjaMenu", "MainMenu");
 
-        AddMenu(new string[] {"Zaloguj się", "Załóż konto", "Wyloguj się", "Płatności", "Wstecz"},
-        new Action[] {Login, CreateUser, Logout, Submenu, GoBack},
-        "Konto", 2);
+        AddMenu(new string[] {"Zaloguj się", "Załóż konto", "Płatności", "Wyloguj się", "Wstecz"},
+        new Action[] {Login, CreateUser, Submenu, Logout, GoBack},
+        "Konto", 2, "KontoMenu", "MainMenu");
+
+        AddMenu(new string[] {"Wszystkie płatności", "Nieopłacone płatności", "Opłacone płatności", "Wstecz"},
+        new Action[] {ShowAllOrders, ShowUnpaidOrders, ShowPaidOrders, GoBack},
+        "Płatności", 2, "PłatnościMenu", "KontoMenu");
         
         menu?.Start();
     }
 
-    private void Debug()
-    {
-        int i;
-        return;
-    }
 
-    private void AddMenu(string[] options, Action[] actions, string header, int index) {
-        Menu newMenu = new Menu(options, actions, header, accounts);
+    private void AddMenu(string[] options, Action[] actions, string header, int index, string menuName, string? parentmenu = null) {
+        Menu newMenu = new Menu(options, actions, header, accounts, menuName);
         if (menu == null) {
             menu = newMenu;
         }
         else {
-            menu.AddSubmenu(index, newMenu);
+            if (menu.MenuName == parentmenu) {
+                menu.AddSubmenu(index, newMenu);
+            }
+            else {
+                foreach (var submenu in menu.GetSubmenus())
+                {
+                    if (submenu.Value.MenuName == parentmenu) {
+                        submenu.Value.AddSubmenu(index, newMenu);
+                        return;
+                    }
+                }
+            }
         }
     }
     private void CreateUser() {
@@ -62,6 +72,15 @@ class HotelSystem {
     }
     private void GoBack() {
         Console.Clear();
+    }
+    private void ShowPaidOrders() {
+        return;
+    }
+    private void ShowUnpaidOrders() {
+        return;
+    }
+    private void ShowAllOrders() {
+        return;
     }
     private void ReserveRoom()
     {
