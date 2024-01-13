@@ -1,54 +1,89 @@
+using System.Diagnostics;
+
 class HotelSystem {
     Accounts accounts;
     const int roomsAmount = 48;
     private readonly Room[] Rooms;
-    Menu? menu;
+    Menu? mainMenu;
 
     public HotelSystem() {
         accounts = new Accounts();
         Rooms = new Room[roomsAmount];
         PopulateRooms();
-        // Submenu submenu = Submenu.CreateInstance(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"},
-        // new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, Exit},
-        // "System rezerwacji pokojów w hotelu", -1, "MainMenu", "asd");
-
-
-
-
-        AddMenu(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"},
-        new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, Exit},
-        "System rezerwacji pokojów w hotelu", -1, "MainMenu");
-
-        AddMenu(new string[] {"Zarezerwuj pokój", "Anuluj rezerwację", "Wyświetl twoje rezerwacje", "Wstecz"},
-        new Action[] {ReserveRoom, CancelReservation, DisplayYourReservations, GoBack},
-        "Rezerwacja", 1, "RezerwacjaMenu", "MainMenu");
-
-        AddMenu(new string[] {"Zaloguj się", "Załóż konto", "Płatności", "Wyloguj się", "Wstecz"},
-        new Action[] {Login, CreateUser, EnterSubmenu, Logout, GoBack},
-        "Konto", 2, "KontoMenu", "MainMenu");
-
-        AddMenu(new string[] {"Wszystkie płatności", "Nieopłacone płatności", "Opłacone płatności", "Wstecz"},
-        new Action[] {ShowAllOrders, ShowUnpaidOrders, ShowPaidOrders, GoBack},
-        "Płatności", 2, "PłatnościMenu", "KontoMenu");
+        CreateMenu();
         
-        menu?.Start();
+        
+        mainMenu?.Start();
     }
 
+    private void CreateMenu() {
+        List<MenuCreator?> tmpMenus = new List<MenuCreator?>();
+        MenuCreator? submenu;
+        string[] options;
+        Action[] actions;
+        int index;
+        string header, internalName, parentName;
 
-    private void AddMenu(string[] options, Action[] actions, string header, int index, string menuName, string? parentmenu = null) {
-        Menu newMenu = new Menu(options, actions, header, accounts, menuName);
-        if (menu == null) {
-            menu = newMenu;
+        options = new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"};
+        actions = new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, Exit};
+        header = "System rezerwacji pokojów w hotelu";
+        index = -1;
+        internalName = "MainMenu";
+        submenu = MenuCreator.CreateInstance(options, actions, header, index, internalName);
+        tmpMenus.Add(submenu);
+
+        options = new string[] {"Zarezerwuj pokój", "Anuluj rezerwację", "Wyświetl twoje rezerwacje", "Wstecz"};
+        actions = new Action[] {ReserveRoom, CancelReservation, DisplayYourReservations, GoBack};
+        header = "Rezerwacja";
+        index = 1;
+        internalName = "RezerwacjaMenu";
+        parentName = "MainMenu";
+        submenu = MenuCreator.CreateInstance(options, actions, header, index, internalName, parentName);
+        tmpMenus.Add(submenu);
+        
+
+        options = new string[] {"Zaloguj się", "Załóż konto", "Płatności", "Wyloguj się", "Wstecz"};
+        actions = new Action[] {Login, CreateUser, EnterSubmenu, Logout, GoBack};
+        header = "Konto";
+        index = 2;
+        internalName = "KontoMenu";
+        parentName = "MainMenu";
+        submenu = MenuCreator.CreateInstance(options, actions, header, index, internalName, parentName);
+        tmpMenus.Add(submenu);
+        
+        options = new string[] {"Wszystkie płatności", "Nieopłacone płatności", "Opłacone płatności", "Wstecz"};
+        actions = new Action[] {ShowAllOrders, ShowUnpaidOrders, ShowPaidOrders, GoBack};
+        header = "Płatności";
+        index = 2;
+        internalName = "PłatnościMenu";
+        parentName = "KontoMenu";
+        submenu = MenuCreator.CreateInstance(options, actions, header, index, internalName, parentName);
+        tmpMenus.Add(submenu);
+        
+        foreach (MenuCreator? menu in tmpMenus)
+        {
+            if (menu == null) {
+                PrinterHelper.PrintMessage("Ilość opcji nie zgadza się z liczbą akcji", 2, true);
+                return;
+            }
+            AddMenu(menu);
         }
+    }
+    private void AddMenu(MenuCreator submenu) {
+        Menu newMenu = new Menu(submenu.Options, submenu.Actions, submenu.Header, accounts, submenu.InternalName);
+        if (mainMenu == null) {
+            mainMenu = newMenu;
+        }
+
         else {
-            if (menu.MenuName == parentmenu) {
-                menu.AddSubmenu(index, newMenu);
+            if (mainMenu.MenuName == submenu.ParentName) {
+                mainMenu.AddSubmenu(submenu.Index, newMenu);
             }
             else {
-                foreach (var submenu in menu.GetSubmenus())
+                foreach (var menu in mainMenu.GetSubmenus())
                 {
-                    if (submenu.Value.MenuName == parentmenu) {
-                        submenu.Value.AddSubmenu(index, newMenu);
+                    if (menu.Value.MenuName == submenu.ParentName) {
+                        menu.Value.AddSubmenu(submenu.Index, newMenu);
                         return;
                     }
                 }

@@ -5,15 +5,16 @@ class Menu {
     int CursorPos {get; set; }
     private IUserProvider userProvider;
     Dictionary<int, Menu> submenus = new Dictionary<int, Menu>();
-    List<MenuOption> optionsList = new List<MenuOption>();
+    MenuOption[] arrayOfOptions;
 
 
     public Menu(string[] options, Action[] actions, string header, IUserProvider userProvider, string menuName) {
+        arrayOfOptions = new MenuOption[options.Length];
         for (int i = 0; i < options.Length; i++) {
             MenuOption option = new MenuOption(options[i], i, actions[i]);
-            optionsList.Add(option);
+            arrayOfOptions[i] = option;
         }
-        this.userProvider = userProvider; 
+        this.userProvider = userProvider;
         Header = header;
         CursorPos = 0;
         MenuName = menuName;
@@ -44,10 +45,10 @@ class Menu {
     private void PrintMenu() {
         PrinterHelper.PrintMessage(Header, 0, false);
         Console.CursorTop++;
-        for (int i = 0; i < optionsList.Count; i++)
+        for (int i = 0; i < arrayOfOptions.Length; i++)
         {
-            string text = optionsList.ElementAt(i).OptionName;
-            if (CursorPos == optionsList.ElementAt(i).Index) {
+            string text = arrayOfOptions[i].OptionName;
+            if (CursorPos == arrayOfOptions[i].Index) {
                 PrinterHelper.SelectColor();
             }
             PrinterHelper.PrintMessage(text, 1, false);
@@ -67,7 +68,7 @@ class Menu {
         Console.Write(message);
     }
     private void SelectOption() {
-        foreach (var option in optionsList)
+        foreach (var option in arrayOfOptions)
         {
             if (option.Index == CursorPos) {
                 if (option.Action.Method.Name.ToString() == "EnterSubmenu") {
@@ -91,12 +92,12 @@ class Menu {
             case ConsoleKey.UpArrow:
                 CursorPos--;
                 if (CursorPos < 0) {
-                    CursorPos = optionsList.Count - 1;
+                    CursorPos = arrayOfOptions.Length - 1;
                 }
                 break;
             case ConsoleKey.DownArrow:
                 CursorPos++;
-                if (CursorPos > optionsList.Count - 1) {
+                if (CursorPos > arrayOfOptions.Length - 1) {
                     CursorPos = 0;
                 }
                 break;
