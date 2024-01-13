@@ -24,10 +24,10 @@ class PrinterHelper {
         }
         return input;
     }
-    public static void PrintFormat(int i) {
-        if (i % 12 == 0) {
-            Console.CursorLeft = Console.WindowWidth / 2 - 8;
-            Console.CursorTop++;
+    public static void PrintRoomsFormat(int i) {
+        if (i % 16 == 0) {
+            Console.CursorLeft = Console.WindowWidth / 2 - 9;
+            Console.CursorTop += 2;
             }
         else if (i % 4 == 0) {
             Console.CursorLeft++;
@@ -40,5 +40,10 @@ class PrinterHelper {
     public static void UnselectColor() {
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;
+    }
+    public static void CheckForBoundaries() {
+        if (Console.WindowHeight < 10 || Console.WindowWidth < 50) {
+            PrintMessage("Za małe okno konsoli", 2, true);
+        }
     }
 }

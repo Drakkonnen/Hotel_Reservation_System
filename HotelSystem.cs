@@ -1,6 +1,6 @@
 class HotelSystem {
     Accounts accounts;
-    const int roomsAmount = 36;
+    const int roomsAmount = 48;
     private readonly Room[] Rooms;
     Menu? menu;
 
@@ -8,9 +8,15 @@ class HotelSystem {
         accounts = new Accounts();
         Rooms = new Room[roomsAmount];
         PopulateRooms();
+        // Submenu submenu = Submenu.CreateInstance(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"},
+        // new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, Exit},
+        // "System rezerwacji pokojów w hotelu", -1, "MainMenu", "asd");
+
+
+
 
         AddMenu(new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"},
-        new Action[] {DisplayAllRooms, Submenu, Submenu, Exit},
+        new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, Exit},
         "System rezerwacji pokojów w hotelu", -1, "MainMenu");
 
         AddMenu(new string[] {"Zarezerwuj pokój", "Anuluj rezerwację", "Wyświetl twoje rezerwacje", "Wstecz"},
@@ -18,7 +24,7 @@ class HotelSystem {
         "Rezerwacja", 1, "RezerwacjaMenu", "MainMenu");
 
         AddMenu(new string[] {"Zaloguj się", "Załóż konto", "Płatności", "Wyloguj się", "Wstecz"},
-        new Action[] {Login, CreateUser, Submenu, Logout, GoBack},
+        new Action[] {Login, CreateUser, EnterSubmenu, Logout, GoBack},
         "Konto", 2, "KontoMenu", "MainMenu");
 
         AddMenu(new string[] {"Wszystkie płatności", "Nieopłacone płatności", "Opłacone płatności", "Wstecz"},
@@ -64,7 +70,7 @@ class HotelSystem {
         GoBack();
     }
 
-    private void Submenu() {
+    private void EnterSubmenu() {
         return;
     }
     private void Exit() {
@@ -147,7 +153,7 @@ class HotelSystem {
         PrinterHelper.PrintMessage("Stan pokojów\n", 0, false);
         for (int i = 0; i < Rooms.Length; i++)
         {   
-            PrinterHelper.PrintFormat(i);
+            PrinterHelper.PrintRoomsFormat(i);
             if (Rooms[i].IsReserved()) {
                 Console.Write('X');
             }

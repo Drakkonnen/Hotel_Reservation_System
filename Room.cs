@@ -1,6 +1,6 @@
 class Room {
     private bool Reserved {get; set;}
-    User? ReservedBy {get; set;}
+    private User? ReservedBy;
     public void Reserve(User user) {
         Reserved = true;
         ReservedBy = user;

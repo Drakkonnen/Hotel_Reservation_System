@@ -5,24 +5,12 @@ class Menu {
     int CursorPos {get; set; }
     private IUserProvider userProvider;
     Dictionary<int, Menu> submenus = new Dictionary<int, Menu>();
-    List<Option> optionsList = new List<Option>();
-    struct Option
-    {
-        public string OptionName {get; private set;}
-        public int Index {get; private set;} 
-        public Action Action {get; private set;}
-        public Option(string name, int index, Action action) {
-            OptionName = name;
-            Index = index;
-            Action = action;
-        }
-    }
-
+    List<MenuOption> optionsList = new List<MenuOption>();
 
 
     public Menu(string[] options, Action[] actions, string header, IUserProvider userProvider, string menuName) {
         for (int i = 0; i < options.Length; i++) {
-            Option option = new Option(options[i], i, actions[i]);
+            MenuOption option = new MenuOption(options[i], i, actions[i]);
             optionsList.Add(option);
         }
         this.userProvider = userProvider; 
@@ -32,10 +20,7 @@ class Menu {
     }
 
     public void Start() {
-        if (Console.WindowHeight < 10 || Console.WindowWidth < 50) {
-            Console.WriteLine("Za małe okno konsoli");
-            return;
-        }
+        PrinterHelper.CheckForBoundaries();
         isWorking = true;
         Console.Clear();
         Console.CursorVisible = false;
@@ -85,7 +70,7 @@ class Menu {
         foreach (var option in optionsList)
         {
             if (option.Index == CursorPos) {
-                if (option.Action.Method.Name.ToString() == "Submenu") {
+                if (option.Action.Method.Name.ToString() == "EnterSubmenu") {
                     submenus[option.Index].Start();
                 }
                 else if (option.Action.Method.Name.ToString() == "GoBack") {
