@@ -1,62 +1,69 @@
 class Accounts : IUserProvider { 
     User? loggedUser;
     List<User> listOfUsers = new List<User>();
+    private IUserInputProvider userInputProvider;
 
-    public void CreateUser() {
-        Console.Clear();
-        PrinterHelper.PrintMessage("Zakładanie konta", 0, false);
+
+    public Accounts(IUserInputProvider userInputProvider) {
+        this.userInputProvider = userInputProvider;
+    }
+    public bool CreateUser() {
+        userInputProvider.ClearScreen();
+        userInputProvider.PrintMessage("Zakładanie konta", 0, false);
         if (IsLoggedIn()) {
-            PrinterHelper.PrintMessage("Już zalogowany", 2, true);
-            return;
+            userInputProvider.PrintMessage("Już zalogowany", 2, true);
+            return false;
         }
 
-        string username = PrinterHelper.AskForInput("Podaj nazwę użytkownika:", 2);
-        string password = PrinterHelper.AskForInput("Podaj hasło:", 2);
+        string username = userInputProvider.ReadLine("Podaj nazwę użytkownika:", 2);
+        string password = userInputProvider.ReadLine("Podaj hasło:", 2);
 
         foreach (User user in listOfUsers)
         {
             if (user.Username.Equals(username)) {
-                PrinterHelper.PrintMessage("Użytkownik o podanej nazwie już istnieje", 2, true);
-                return;
+                userInputProvider.PrintMessage("Użytkownik o podanej nazwie już istnieje", 2, true);
+                return false;
             }
         }
         User newUser = new User(username, password);
         listOfUsers.Add(newUser);
         loggedUser = newUser;
-        PrinterHelper.PrintMessage("Stworzono konto użytkownika {0}", newUser.Username, 1, true);
+        userInputProvider.PrintMessage("Stworzono konto użytkownika {0}", 1, true, newUser.Username);
+        return true;
     }
-    public void Login() {
-        Console.Clear();
-        PrinterHelper.PrintMessage("Logowanie", 0, false);
+    public bool Login() {
+        userInputProvider.ClearScreen();
+        userInputProvider.PrintMessage("Logowanie", 0, false);
 
         if (IsLoggedIn()) {
-            PrinterHelper.PrintMessage("Już zalogowany", 2, true);
-            return;
+            userInputProvider.PrintMessage("Już zalogowany", 2, true);
+            return false;
         }
         
-        string username = PrinterHelper.AskForInput("Podaj nazwę użytkownika:", 2);
-        string password = PrinterHelper.AskForInput("Podaj hasło:", 2);
+        string username = userInputProvider.ReadLine("Podaj nazwę użytkownika:", 2);
+        string password = userInputProvider.ReadLine("Podaj hasło:", 2);
         
         foreach (User user in listOfUsers)
         {
-            PrinterHelper.PrintMessage(user.Username, 1, false);
             if (user.Username.Equals(username)) {
                 if (user.Login(password)) {
                     loggedUser = user;
-                    PrinterHelper.PrintMessage("Zalogowano", 2, true);
-                    return;
+                    userInputProvider.PrintMessage("Zalogowano", 2, true);
+                    return true;
                 }
                 else {
-                    PrinterHelper.PrintMessage("Złe hasło", 2, true);
+                    userInputProvider.PrintMessage("Złe hasło", 2, true);
+                    return false;
                 }
             }
         }
-        PrinterHelper.PrintMessage("Nie znaleziono użytkownika", 1, true);
+        userInputProvider.PrintMessage("Nie znaleziono użytkownika", 1, true);
+        return false;
     }
     public void Logout() {
-        Console.Clear();
+        userInputProvider.ClearScreen();
         if (IsLoggedIn()) {
-            PrinterHelper.PrintMessage("Wylogowano", 2, true);
+            userInputProvider.PrintMessage("Wylogowano", 2, true);
             loggedUser = null;
         }
     }
@@ -72,6 +79,9 @@ class Accounts : IUserProvider {
             return loggedUser;
         }
         else return null;
+    }
+    public int GetAmountOfUsers() {
+        return listOfUsers.Count;
     }
 }
 

@@ -5,15 +5,22 @@ class HotelSystem {
     const int roomsAmount = 48;
     private readonly Room[] Rooms;
     Menu? mainMenu;
+    private IUserInputProvider userInputProvider;
 
-    public HotelSystem() {
-        accounts = new Accounts();
+    public HotelSystem(IUserInputProvider userInputProvider, string? test = null) {
+        this.userInputProvider = userInputProvider;
+        accounts = new Accounts(userInputProvider);
         Rooms = new Room[roomsAmount];
         PopulateRooms();
-        CreateMenu();
+        if (test == null) {
+            CreateMenu();
+            mainMenu?.Start();
+        }
+        else {
+            accounts.CreateUser();
+            TestingReservations();
+        }
         
-        
-        mainMenu?.Start();
     }
 
     private void CreateMenu() {
@@ -24,8 +31,8 @@ class HotelSystem {
         int index;
         string header, internalName, parentName;
 
-        options = new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Wyjdź"};
-        actions = new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, Exit};
+        options = new string[] {"Pokaż dostępne miesjca", "Rezerwacja", "Konto", "Run tests", "Wyjdź"};
+        actions = new Action[] {DisplayAllRooms, EnterSubmenu, EnterSubmenu, RunTests, Exit};
         header = "System rezerwacji pokojów w hotelu";
         index = -1;
         internalName = "MainMenu";
@@ -112,8 +119,9 @@ class HotelSystem {
         Environment.Exit(0);
     }
     private void GoBack() {
-        Console.Clear();
+        userInputProvider.ClearScreen();
     }
+    
     private void ShowPaidOrders() {
         return;
     }
@@ -125,59 +133,62 @@ class HotelSystem {
     }
     private void ReserveRoom()
     {
-        Console.Clear();
-        PrinterHelper.PrintMessage("Reservation", 0, false);
+        userInputProvider.ClearScreen();
+        userInputProvider.PrintMessage("Reservation", 0, false);
         User? currentUser = accounts.GetCurrentUser();
         if (currentUser != null) {
-            if (int.TryParse(PrinterHelper.AskForInput("Podaj numer pokoju", 2), out int roomNumber) 
+            if (int.TryParse(userInputProvider.ReadLine("Podaj numer pokoju", 2), out int roomNumber) 
             && roomNumber <= roomsAmount && roomNumber > 0)
             {
                 if (Rooms[roomNumber - 1].IsReserved()) {
-                    PrinterHelper.PrintMessage("Pokój o numerze {0} jest już zarezerwowany", roomNumber.ToString(), 2, true);
+                    userInputProvider.PrintMessage("Pokój o numerze {0} jest już zarezerwowany", 2, true, roomNumber.ToString());
                     GoBack();
+                    return;
                 }
                 Rooms[roomNumber - 1].Reserve(currentUser);
                 currentUser.AddReservedRoom(roomNumber);
-                PrinterHelper.PrintMessage("Zarezerwowano pokój {0}", roomNumber.ToString(), 2, true);
+                userInputProvider.PrintMessage("Zarezerwowano pokój {0}", 2, true, roomNumber.ToString());
             }
             else {
-                PrinterHelper.PrintMessage("Wprowadź poprawny numer pokoju", 2, true);
+                userInputProvider.PrintMessage("Wprowadź poprawny numer pokoju", 2, true);
             }
         }
         else {
-            PrinterHelper.PrintMessage("Proszę się zalogować", 0, true);
+            userInputProvider.PrintMessage("Proszę się zalogować", 2, true);
         }
         GoBack();
     }
 
     private void CancelReservation()
     {
-        Console.Clear();
-        PrinterHelper.PrintMessage("Anulowanie rezerwacji", 0, false);
+        userInputProvider.ClearScreen();
+        userInputProvider.PrintMessage("Anulowanie rezerwacji", 0, false);
         
         User? currentUser = accounts.GetCurrentUser();
         if (currentUser != null) {
-            if (int.TryParse(PrinterHelper.AskForInput("Podaj numer pokoju", 2), out int roomNumber) 
+            if (int.TryParse(userInputProvider.ReadLine("Podaj numer pokoju", 2), out int roomNumber) 
             && roomNumber <= roomsAmount && roomNumber > 0)
             {
                 if (!Rooms[roomNumber - 1].IsReserved()) {
-                    PrinterHelper.PrintMessage("Pokój o numerze {0} nie jest zarezerwowany", roomNumber.ToString(), 2, true);
+                    userInputProvider.PrintMessage("Pokój o numerze {0} nie jest zarezerwowany", 2, true, roomNumber.ToString());
                     GoBack();
+                    return;
                 }
                 if (!currentUser.IsRoomReserved(roomNumber)) {
-                    PrinterHelper.PrintMessage("Pokój o numerze {0} nie jest zarezerwowany przez ciebie", roomNumber.ToString(), 2, true);
+                    userInputProvider.PrintMessage("Pokój o numerze {0} nie jest zarezerwowany przez ciebie", 2, true, roomNumber.ToString());
                     GoBack();
+                    return;
                 }
                 Rooms[roomNumber - 1].FreeRoom();
                 currentUser.RemoveReservedRoom(roomNumber);
-                PrinterHelper.PrintMessage("Anulowano rezerwację pokoju {0}", roomNumber.ToString(), 2, true);
+                userInputProvider.PrintMessage("Anulowano rezerwację pokoju {0}", 2, true, roomNumber.ToString());
             }
             else {
-                PrinterHelper.PrintMessage("Wprowadź poprawny numer pokoju", 2, true);
+                userInputProvider.PrintMessage("Wprowadź poprawny numer pokoju", 2, true);
             }
         }
         else {
-            PrinterHelper.PrintMessage("Proszę się zalogować", 2, true);
+            userInputProvider.PrintMessage("Proszę się zalogować", 2, true);
         }
         GoBack();
     }
@@ -228,5 +239,36 @@ class HotelSystem {
         {
             Rooms[i] = new Room();
         }
+    }
+    private void RunTests() {
+        Console.Clear();
+        Test.TestAccounts();
+        Test.TestReservations();
+        GoBack();
+    }
+    private void TestingReservations() {
+        PrinterHelper.PrintMessage("Testing reserving a room... ", 1, false);
+        Test.Testing(TestMakingReservations());
+
+        PrinterHelper.PrintMessage("Testing canceling reservations... ", 0, false);
+        Test.Testing(TestCancelingReservations());
+    }
+    private bool TestMakingReservations() {
+        for (int i = 0; i < 4; i++) {
+            ReserveRoom();
+        }
+        if (accounts?.GetCurrentUser()?.GetReservedRooms().Count == 1) {
+            return true;
+        }
+        return false;
+    }
+    private bool TestCancelingReservations() {
+        for (int i = 0; i < 4; i++) {
+            CancelReservation();
+        }
+        if (accounts?.GetCurrentUser()?.GetReservedRooms().Count == 0) {
+            return true;
+        }
+        return false;
     }
 }

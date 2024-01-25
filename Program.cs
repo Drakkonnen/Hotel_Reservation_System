@@ -6,6 +6,6 @@ internal class Program
     private static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
-        HotelSystem hotelSystem = new HotelSystem();
+        HotelSystem hotelSystem = new HotelSystem(new ConsoleUserInputProvider());
     }
 }

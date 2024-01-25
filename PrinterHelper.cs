@@ -1,18 +1,21 @@
 class PrinterHelper {
-    public static void PrintMessage(string message, int topMargin, bool pause) {
+    public static void PrintMessage(string message, int topMargin, bool pause, string? var = null) {
         Console.SetCursorPosition((Console.WindowWidth - message.Length) / 2, Console.CursorTop += topMargin);
+        if (var != null) {
+            message = message.Replace("{0}", var);
+        }
         Console.Write(message);
         if (pause) {
-            Console.ReadKey();
+            Console.ReadKey(true);
         }
     }
-    public static void PrintMessage(string message, string var, int topMargin, bool pause) {
-        Console.SetCursorPosition((Console.WindowWidth - message.Length) / 2, Console.CursorTop += topMargin);
-        message = message.Replace("{0}", var);
+    public static void PrintSameLine(string message, bool pause) {
+        //Console.CursorTop--;
         Console.Write(message);
         if (pause) {
-            Console.ReadKey();
+            Console.ReadKey(true);
         }
+        Console.CursorTop+=1;
     }
     public static string AskForInput(string message, int topMargin) {
         PrintMessage(message, topMargin, false);
@@ -23,6 +26,9 @@ class PrinterHelper {
             input = Console.ReadLine();
         }
         return input;
+    }
+    public static void ClearScreen() {
+        Console.Clear();
     }
     public static void PrintRoomsFormat(int i) {
         if (i % 16 == 0) {
@@ -46,4 +52,12 @@ class PrinterHelper {
             PrintMessage("Za małe okno konsoli", 2, true);
         }
     }
+    public static void PrintTestResults(bool result) {
+        if (result) {
+            PrintSameLine("Success", true);
+        }
+        else {
+            PrintSameLine("Test failed", true);
+        }
+    } 
 }
