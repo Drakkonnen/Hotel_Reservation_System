@@ -49,8 +49,8 @@ class HotelSystem {
         tmpMenus.Add(submenu);
         
 
-        options = new string[] {"Zaloguj się", "Załóż konto", "Płatności", "Wyloguj się", "Wstecz"};
-        actions = new Action[] {Login, CreateUser, EnterSubmenu, Logout, GoBack};
+        options = new string[] {"Zaloguj się", "Załóż konto", "Wyloguj się", "Wstecz"};
+        actions = new Action[] {Login, CreateUser, Logout, GoBack};
         header = "Konto";
         index = 2;
         internalName = "KontoMenu";
@@ -58,14 +58,6 @@ class HotelSystem {
         submenu = MenuCreator.CreateInstance(options, actions, header, index, internalName, parentName);
         tmpMenus.Add(submenu);
         
-        options = new string[] {"Wszystkie płatności", "Nieopłacone płatności", "Opłacone płatności", "Wstecz"};
-        actions = new Action[] {ShowAllOrders, ShowUnpaidOrders, ShowPaidOrders, GoBack};
-        header = "Płatności";
-        index = 2;
-        internalName = "PłatnościMenu";
-        parentName = "KontoMenu";
-        submenu = MenuCreator.CreateInstance(options, actions, header, index, internalName, parentName);
-        tmpMenus.Add(submenu);
         
         foreach (MenuCreator? menu in tmpMenus)
         {
@@ -122,15 +114,6 @@ class HotelSystem {
         userInputProvider.ClearScreen();
     }
     
-    private void ShowPaidOrders() {
-        return;
-    }
-    private void ShowUnpaidOrders() {
-        return;
-    }
-    private void ShowAllOrders() {
-        return;
-    }
     private void ReserveRoom()
     {
         userInputProvider.ClearScreen();
